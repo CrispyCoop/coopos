@@ -116,10 +116,12 @@ BEGIN
     (gen_random_uuid(), 'Delivery Bags (insulated)', 'packaging', 'each', 1.20, sup_bunzl,  10,  20,  15)
   ON CONFLICT DO NOTHING;
 
-  -- Sync stock_levels
-  INSERT INTO stock_levels (ingredient_id, quantity_on_hand)
-  SELECT id, current_stock FROM ingredients
-  ON CONFLICT (ingredient_id) DO UPDATE SET quantity_on_hand = EXCLUDED.quantity_on_hand;
+  -- Sync stock_levels (only if table exists — created in migration 011)
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'stock_levels' AND table_schema = 'public') THEN
+    INSERT INTO stock_levels (ingredient_id, quantity_on_hand)
+    SELECT id, COALESCE(current_stock, 0) FROM ingredients
+    ON CONFLICT (ingredient_id) DO UPDATE SET quantity_on_hand = EXCLUDED.quantity_on_hand;
+  END IF;
 
 END $$;
 
