@@ -126,44 +126,76 @@ BEGIN
 END $$;
 
 -- ============================================================
+-- MENU CATEGORIES
+-- ============================================================
+INSERT INTO menu_categories (id, name, display_order, active) VALUES
+  (gen_random_uuid(), 'Chicken',  1, true),
+  (gen_random_uuid(), 'Strips',   2, true),
+  (gen_random_uuid(), 'Burgers',  3, true),
+  (gen_random_uuid(), 'Wings',    4, true),
+  (gen_random_uuid(), 'Meals',    5, true),
+  (gen_random_uuid(), 'Sides',    6, true),
+  (gen_random_uuid(), 'Drinks',   7, true)
+ON CONFLICT DO NOTHING;
+
+-- ============================================================
 -- MENU ITEMS
 -- ============================================================
-INSERT INTO menu_items (id, name, category, price, active, description) VALUES
-  -- Individual pieces
-  (gen_random_uuid(), '1 Piece Chicken',         'chicken',  2.99, true,  '1 piece of our crispy fried chicken'),
-  (gen_random_uuid(), '2 Piece Chicken',         'chicken',  5.49, true,  '2 pieces of crispy fried chicken'),
-  (gen_random_uuid(), '3 Piece Chicken',         'chicken',  7.49, true,  '3 pieces of crispy fried chicken'),
-  (gen_random_uuid(), '4 Piece Chicken',         'chicken',  9.49, true,  '4 pieces of crispy fried chicken'),
-  (gen_random_uuid(), '6 Piece Chicken',         'chicken', 13.49, true,  '6 pieces — great for sharing'),
-  -- Strips
-  (gen_random_uuid(), '3 Strips',                'strips',   4.99, true,  '3 crispy chicken strips'),
-  (gen_random_uuid(), '5 Strips',                'strips',   7.49, true,  '5 crispy chicken strips'),
-  (gen_random_uuid(), '10 Strips',               'strips',  13.99, true,  '10 strips — sharing platter'),
-  -- Burgers
-  (gen_random_uuid(), 'Classic Chicken Burger',  'burgers',  5.99, true,  'Crispy chicken fillet in a brioche bun'),
-  (gen_random_uuid(), 'Spicy Chicken Burger',    'burgers',  6.49, true,  'Spicy crispy fillet, jalapeños, hot sauce'),
-  (gen_random_uuid(), 'Tower Burger',            'burgers',  7.99, true,  'Double fillet, cheese, bacon, slaw'),
-  -- Wings
-  (gen_random_uuid(), '6 Wings',                 'wings',    5.99, true,  '6 crispy wings, choice of sauce'),
-  (gen_random_uuid(), '10 Wings',                'wings',    9.49, true,  '10 crispy wings, choice of sauce'),
-  (gen_random_uuid(), '20 Wings',                'wings',   17.99, true,  '20 wings — party bucket'),
-  -- Meals (combos)
-  (gen_random_uuid(), '2 Piece Meal',            'meals',    7.99, true,  '2 piece chicken + fries + drink'),
-  (gen_random_uuid(), '3 Piece Meal',            'meals',    9.99, true,  '3 piece chicken + fries + drink'),
-  (gen_random_uuid(), '3 Strips Meal',           'meals',    6.99, true,  '3 strips + fries + drink'),
-  (gen_random_uuid(), 'Burger Meal',             'meals',    7.99, true,  'Classic burger + fries + drink'),
-  -- Sides
-  (gen_random_uuid(), 'Regular Fries',           'sides',    2.49, true,  'Crispy seasoned fries'),
-  (gen_random_uuid(), 'Large Fries',             'sides',    2.99, true,  'Large crispy seasoned fries'),
-  (gen_random_uuid(), 'Corn on the Cob',         'sides',    1.49, true,  'Buttered corn on the cob'),
-  (gen_random_uuid(), 'Coleslaw',                'sides',    1.29, true,  'Creamy coleslaw'),
-  (gen_random_uuid(), 'Baked Beans',             'sides',    1.49, true,  'Rich baked beans'),
-  -- Drinks
-  (gen_random_uuid(), 'Pepsi (330ml)',            'drinks',   1.49, true,  'Chilled Pepsi'),
-  (gen_random_uuid(), '7UP (330ml)',              'drinks',   1.49, true,  'Chilled 7UP'),
-  (gen_random_uuid(), 'Water (500ml)',            'drinks',   1.29, true,  'Still water'),
-  (gen_random_uuid(), 'Fruit Shoot',              'drinks',   1.29, true,  'Kids fruit shoot')
-ON CONFLICT DO NOTHING;
+DO $$
+DECLARE
+  cat_chicken UUID;
+  cat_strips  UUID;
+  cat_burgers UUID;
+  cat_wings   UUID;
+  cat_meals   UUID;
+  cat_sides   UUID;
+  cat_drinks  UUID;
+BEGIN
+  SELECT id INTO cat_chicken FROM menu_categories WHERE name = 'Chicken' LIMIT 1;
+  SELECT id INTO cat_strips  FROM menu_categories WHERE name = 'Strips'  LIMIT 1;
+  SELECT id INTO cat_burgers FROM menu_categories WHERE name = 'Burgers' LIMIT 1;
+  SELECT id INTO cat_wings   FROM menu_categories WHERE name = 'Wings'   LIMIT 1;
+  SELECT id INTO cat_meals   FROM menu_categories WHERE name = 'Meals'   LIMIT 1;
+  SELECT id INTO cat_sides   FROM menu_categories WHERE name = 'Sides'   LIMIT 1;
+  SELECT id INTO cat_drinks  FROM menu_categories WHERE name = 'Drinks'  LIMIT 1;
+
+  INSERT INTO menu_items (id, name, category_id, instore_price, status, description) VALUES
+    -- Individual pieces
+    (gen_random_uuid(), '1 Piece Chicken',        cat_chicken,  2.99, 'active', '1 piece of our crispy fried chicken'),
+    (gen_random_uuid(), '2 Piece Chicken',        cat_chicken,  5.49, 'active', '2 pieces of crispy fried chicken'),
+    (gen_random_uuid(), '3 Piece Chicken',        cat_chicken,  7.49, 'active', '3 pieces of crispy fried chicken'),
+    (gen_random_uuid(), '4 Piece Chicken',        cat_chicken,  9.49, 'active', '4 pieces of crispy fried chicken'),
+    (gen_random_uuid(), '6 Piece Chicken',        cat_chicken, 13.49, 'active', '6 pieces — great for sharing'),
+    -- Strips
+    (gen_random_uuid(), '3 Strips',               cat_strips,   4.99, 'active', '3 crispy chicken strips'),
+    (gen_random_uuid(), '5 Strips',               cat_strips,   7.49, 'active', '5 crispy chicken strips'),
+    (gen_random_uuid(), '10 Strips',              cat_strips,  13.99, 'active', '10 strips — sharing platter'),
+    -- Burgers
+    (gen_random_uuid(), 'Classic Chicken Burger', cat_burgers,  5.99, 'active', 'Crispy chicken fillet in a brioche bun'),
+    (gen_random_uuid(), 'Spicy Chicken Burger',   cat_burgers,  6.49, 'active', 'Spicy crispy fillet, jalapeños, hot sauce'),
+    (gen_random_uuid(), 'Tower Burger',           cat_burgers,  7.99, 'active', 'Double fillet, cheese, bacon, slaw'),
+    -- Wings
+    (gen_random_uuid(), '6 Wings',                cat_wings,    5.99, 'active', '6 crispy wings, choice of sauce'),
+    (gen_random_uuid(), '10 Wings',               cat_wings,    9.49, 'active', '10 crispy wings, choice of sauce'),
+    (gen_random_uuid(), '20 Wings',               cat_wings,   17.99, 'active', '20 wings — party bucket'),
+    -- Meals (combos)
+    (gen_random_uuid(), '2 Piece Meal',           cat_meals,    7.99, 'active', '2 piece chicken + fries + drink'),
+    (gen_random_uuid(), '3 Piece Meal',           cat_meals,    9.99, 'active', '3 piece chicken + fries + drink'),
+    (gen_random_uuid(), '3 Strips Meal',          cat_meals,    6.99, 'active', '3 strips + fries + drink'),
+    (gen_random_uuid(), 'Burger Meal',            cat_meals,    7.99, 'active', 'Classic burger + fries + drink'),
+    -- Sides
+    (gen_random_uuid(), 'Regular Fries',          cat_sides,    2.49, 'active', 'Crispy seasoned fries'),
+    (gen_random_uuid(), 'Large Fries',            cat_sides,    2.99, 'active', 'Large crispy seasoned fries'),
+    (gen_random_uuid(), 'Corn on the Cob',        cat_sides,    1.49, 'active', 'Buttered corn on the cob'),
+    (gen_random_uuid(), 'Coleslaw',               cat_sides,    1.29, 'active', 'Creamy coleslaw'),
+    (gen_random_uuid(), 'Baked Beans',            cat_sides,    1.49, 'active', 'Rich baked beans'),
+    -- Drinks
+    (gen_random_uuid(), 'Pepsi (330ml)',           cat_drinks,   1.49, 'active', 'Chilled Pepsi'),
+    (gen_random_uuid(), '7UP (330ml)',             cat_drinks,   1.49, 'active', 'Chilled 7UP'),
+    (gen_random_uuid(), 'Water (500ml)',           cat_drinks,   1.29, 'active', 'Still water'),
+    (gen_random_uuid(), 'Fruit Shoot',             cat_drinks,   1.29, 'active', 'Kids fruit shoot')
+  ON CONFLICT DO NOTHING;
+END $$;
 
 -- ============================================================
 -- SOPS (Standard Operating Procedures)
@@ -359,7 +391,7 @@ ON CONFLICT DO NOTHING;
 -- ============================================================
 -- PROMO CODES (launch codes)
 -- ============================================================
-INSERT INTO promo_codes (code, discount_type, discount_value, min_order_value, expiry_date, max_redemptions, redemption_count, active) VALUES
+INSERT INTO promo_codes (code, discount_type, discount_value, min_order_value, valid_to, max_redemptions, current_redemptions, active) VALUES
   ('CRISPY10',   'percentage', 10, 10.00, '2026-12-31', 500, 0, true),
   ('NEWCOOP',    'fixed',       3,  8.00, '2026-08-31', 200, 0, true),
   ('FIRSTORDER', 'percentage', 15, 12.00, '2026-09-30', 100, 0, true)
