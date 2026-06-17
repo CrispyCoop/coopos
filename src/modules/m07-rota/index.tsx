@@ -3,6 +3,7 @@ import { ModuleHeader } from '@/components/layout/ModuleHeader'
 import { Tabs } from '@/components/ui/Tabs'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { DeleteConfirm } from '@/components/ui/DeleteConfirm'
 import { RotaGrid } from './RotaGrid'
 import { StaffList } from './StaffList'
 import { StaffForm } from './StaffForm'
@@ -12,6 +13,8 @@ import { LabourCostBar } from './LabourCostBar'
 import { WagePayments } from './WagePayments'
 import { ForecastPanel } from './ForecastPanel'
 import { SmartRotaPanel } from './SmartRotaPanel'
+import { useDeleteStaffMember } from '@/lib/queries'
+import toast from 'react-hot-toast'
 import type { StaffMember } from '@/types/staff'
 
 const TABS = [
@@ -29,6 +32,8 @@ export default function RotaPage() {
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null)
   const [forecastResult, setForecastResult] = useState<object | null>(null)
   const [forecastWeekStart, setForecastWeekStart] = useState('')
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null)
+  const deleteStaff = useDeleteStaffMember()
 
   const getAction = () => {
     if (activeTab === 'staff') return (
@@ -78,7 +83,10 @@ export default function RotaPage() {
 
       {activeTab === 'staff' && (
         <Card title="Team Members">
-          <StaffList onSelect={(s) => { setEditingStaff(s); setStaffFormOpen(true) }} />
+          <StaffList
+            onSelect={(s) => { setEditingStaff(s); setStaffFormOpen(true) }}
+            onDelete={(id, label) => setPendingDelete({ id, label })}
+          />
         </Card>
       )}
 
@@ -100,6 +108,15 @@ export default function RotaPage() {
         existing={editingStaff}
       />
       <AbsenceForm isOpen={absenceFormOpen} onClose={() => setAbsenceFormOpen(false)} />
+      <DeleteConfirm
+        isOpen={!!pendingDelete}
+        label={pendingDelete?.label ?? ''}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={async () => {
+          await deleteStaff.mutateAsync(pendingDelete!.id)
+          toast.success('Staff member deleted')
+        }}
+      />
     </div>
   )
 }

@@ -3,12 +3,14 @@ import { ModuleHeader } from '@/components/layout/ModuleHeader'
 import { Tabs } from '@/components/ui/Tabs'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { DeleteConfirm } from '@/components/ui/DeleteConfirm'
 import { OverheadList } from './OverheadList'
 import { OverheadForm } from './OverheadForm'
 import { OverheadSummary } from './OverheadSummary'
 import { WagesManager } from './WagesManager'
+import { useOverheadItems, useDeleteOverheadItem } from '@/lib/queries'
+import toast from 'react-hot-toast'
 import type { OverheadItem } from '@/types/finance'
-import { useOverheadItems } from '@/lib/queries'
 
 const TABS = [
   { key: 'summary', label: 'Summary' },
@@ -20,7 +22,9 @@ export default function OverheadPage() {
   const [activeTab, setActiveTab] = useState('summary')
   const [formOpen, setFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<OverheadItem | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null)
   const { data } = useOverheadItems()
+  const deleteOverhead = useDeleteOverheadItem()
 
   const handleSelect = (id: string) => {
     const item = (data ?? []).find((i) => i.id === id)
@@ -50,7 +54,7 @@ export default function OverheadPage() {
 
       {activeTab === 'items' && (
         <Card title="Overhead Items">
-          <OverheadList onSelect={handleSelect} />
+          <OverheadList onSelect={handleSelect} onDelete={(id, label) => setPendingDelete({ id, label })} />
         </Card>
       )}
 
@@ -61,6 +65,15 @@ export default function OverheadPage() {
       )}
 
       <OverheadForm isOpen={formOpen} onClose={() => setFormOpen(false)} existing={editingItem} />
+      <DeleteConfirm
+        isOpen={!!pendingDelete}
+        label={pendingDelete?.label ?? ''}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={async () => {
+          await deleteOverhead.mutateAsync(pendingDelete!.id)
+          toast.success('Overhead item deleted')
+        }}
+      />
     </div>
   )
 }

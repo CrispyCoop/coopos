@@ -1,6 +1,7 @@
 import { useStaffMembers } from '@/lib/queries'
 import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatGBP } from '@/lib/utils'
 import type { StaffMember } from '@/types/staff'
@@ -9,9 +10,10 @@ type Row = Record<string, unknown>
 
 interface Props {
   onSelect: (s: StaffMember) => void
+  onDelete?: (id: string, label: string) => void
 }
 
-export function StaffList({ onSelect }: Props) {
+export function StaffList({ onSelect, onDelete }: Props) {
   const { data, isLoading } = useStaffMembers()
 
   if (isLoading) return <div className="animate-pulse h-48 bg-surface rounded-xl" />
@@ -39,6 +41,9 @@ export function StaffList({ onSelect }: Props) {
           const isExpired = exp < new Date().toISOString().split('T')[0]
           return <Badge variant={isExpired ? 'red' : 'green'}>{exp}</Badge>
         }},
+        { key: '_del', header: '', render: (r) => onDelete ? (
+          <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); onDelete(r.id as string, r.name as string) }}>Delete</Button>
+        ) : null },
       ]}
       data={(data ?? []) as unknown as Row[]}
       onRowClick={(r) => onSelect(r as unknown as StaffMember)}

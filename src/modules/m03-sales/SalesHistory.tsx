@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatGBP, formatDateTime } from '@/lib/utils'
 import { CHANNEL_LABELS } from '@/lib/constants'
@@ -11,7 +12,11 @@ import type { SalesRecord, Channel } from '@/types/sales'
 
 type Row = Record<string, unknown>
 
-export function SalesHistory() {
+interface Props {
+  onDelete?: (id: string, label: string) => void
+}
+
+export function SalesHistory({ onDelete }: Props) {
   const [from, setFrom] = useState(() => {
     const d = new Date(); d.setDate(d.getDate() - 7); return d.toISOString().split('T')[0]
   })
@@ -51,6 +56,9 @@ export function SalesHistory() {
             )},
             { key: 'order_ref', header: 'Ref', render: (r) => (r.order_ref as string) || '—' },
             { key: 'total', header: 'Total', render: (r) => formatGBP(r.total as number) },
+            { key: '_del', header: '', render: (r) => onDelete ? (
+              <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); onDelete(r.id as string, formatDateTime(r.created_at as string)) }}>Delete</Button>
+            ) : null },
           ]}
           data={(data ?? []) as unknown as Row[]}
         />

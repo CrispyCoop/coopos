@@ -1,6 +1,7 @@
 import { useOverheadItems } from '@/lib/queries'
 import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatGBP } from '@/lib/utils'
 import type { OverheadFrequency } from '@/types/finance'
@@ -26,9 +27,10 @@ function annualCost(amount: number, frequency: OverheadFrequency): number {
 
 interface Props {
   onSelect: (id: string) => void
+  onDelete?: (id: string, label: string) => void
 }
 
-export function OverheadList({ onSelect }: Props) {
+export function OverheadList({ onSelect, onDelete }: Props) {
   const { data, isLoading } = useOverheadItems()
 
   if (isLoading) return <div className="animate-pulse h-48 bg-surface rounded-xl" />
@@ -58,6 +60,9 @@ export function OverheadList({ onSelect }: Props) {
           const overdue = due < new Date().toISOString().split('T')[0]
           return <Badge variant={overdue ? 'red' : 'green'}>{due}</Badge>
         }},
+        { key: '_del', header: '', render: (r) => onDelete ? (
+          <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); onDelete(r.id as string, r.name as string) }}>Delete</Button>
+        ) : null },
       ]}
       data={(data ?? []) as unknown as Row[]}
       onRowClick={(r) => onSelect(r.id as string)}

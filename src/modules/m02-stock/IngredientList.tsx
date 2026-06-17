@@ -3,17 +3,19 @@ import { useIngredients } from '@/lib/queries'
 import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatGBP } from '@/lib/utils'
 import type { Ingredient } from '@/types/stock'
 
 interface Props {
   onSelect: (i: Ingredient) => void
+  onDelete?: (id: string, label: string) => void
 }
 
 type Row = Record<string, unknown>
 
-export function IngredientList({ onSelect }: Props) {
+export function IngredientList({ onSelect, onDelete }: Props) {
   const { data, isLoading } = useIngredients()
   const [search, setSearch] = useState('')
 
@@ -47,6 +49,9 @@ export function IngredientList({ onSelect }: Props) {
             { key: 'minimum_stock', header: 'Min', render: (r) => `${r.minimum_stock} ${r.unit}` },
             { key: 'cost_per_unit', header: 'Cost/Unit', render: (r) => formatGBP(r.cost_per_unit as number) },
             { key: 'status', header: 'Status', render: stockBadge },
+            { key: '_del', header: '', render: (r) => onDelete ? (
+              <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); onDelete(r.id as string, r.name as string) }}>Delete</Button>
+            ) : null },
           ]}
           data={filtered as unknown as Row[]}
           onRowClick={(r) => onSelect(r as unknown as Ingredient)}

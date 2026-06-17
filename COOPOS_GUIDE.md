@@ -237,8 +237,8 @@ Replace `your-project-ref` and `your-service-role-key` (found in Settings → AP
 ```sql
 INSERT INTO profiles (id, email, name, role)
 VALUES (
-  'the-uuid-from-auth-users',  -- copy from Auth → Users tab
-  'owner@crispycoop.co.uk',
+  'cd9fa537-8394-48e2-bc2c-866a2bf8de72',  -- copy from Auth → Users tab
+  'ahamedafzal45@gmail.com',
   'Ahamed Afzal',
   'owner'
 );

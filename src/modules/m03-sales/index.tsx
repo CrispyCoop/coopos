@@ -3,11 +3,14 @@ import { ModuleHeader } from '@/components/layout/ModuleHeader'
 import { Tabs } from '@/components/ui/Tabs'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { DeleteConfirm } from '@/components/ui/DeleteConfirm'
 import { SalesStats } from './SalesStats'
 import { LiveSalesBoard } from './LiveSalesBoard'
 import { SalesByChannel } from './SalesByChannel'
 import { SalesHistory } from './SalesHistory'
 import { SaleEntryForm } from './SaleEntryForm'
+import { useDeleteSaleRecord } from '@/lib/queries'
+import toast from 'react-hot-toast'
 
 const TABS = [
   { key: 'today', label: 'Today' },
@@ -17,6 +20,8 @@ const TABS = [
 export default function SalesPage() {
   const [activeTab, setActiveTab] = useState('today')
   const [saleFormOpen, setSaleFormOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null)
+  const deleteSale = useDeleteSaleRecord()
 
   return (
     <div className="space-y-6">
@@ -44,9 +49,18 @@ export default function SalesPage() {
         </div>
       )}
 
-      {activeTab === 'history' && <SalesHistory />}
+      {activeTab === 'history' && <SalesHistory onDelete={(id, label) => setPendingDelete({ id, label })} />}
 
       <SaleEntryForm isOpen={saleFormOpen} onClose={() => setSaleFormOpen(false)} />
+      <DeleteConfirm
+        isOpen={!!pendingDelete}
+        label={pendingDelete?.label ?? ''}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={async () => {
+          await deleteSale.mutateAsync(pendingDelete!.id)
+          toast.success('Sale record deleted')
+        }}
+      />
     </div>
   )
 }

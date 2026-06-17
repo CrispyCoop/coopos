@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ModuleHeader } from '@/components/layout/ModuleHeader'
 import { Tabs } from '@/components/ui/Tabs'
 import { Button } from '@/components/ui/Button'
+import { DeleteConfirm } from '@/components/ui/DeleteConfirm'
 import { StockStats } from './StockStats'
 import { IngredientList } from './IngredientList'
 import { IngredientForm } from './IngredientForm'
@@ -9,6 +10,8 @@ import { StockAdjustmentForm } from './StockAdjustmentForm'
 import { DeliveryForm } from './DeliveryForm'
 import { StockMovementLog } from './StockMovementLog'
 import { StockSeeder } from './StockSeeder'
+import { useDeleteIngredient } from '@/lib/queries'
+import toast from 'react-hot-toast'
 import type { Ingredient } from '@/types/stock'
 
 const TABS = [
@@ -22,6 +25,8 @@ export default function StockPage() {
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null)
   const [adjustmentOpen, setAdjustmentOpen] = useState(false)
   const [deliveryOpen, setDeliveryOpen] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null)
+  const deleteIngredient = useDeleteIngredient()
 
   function handleEditIngredient(i: Ingredient) {
     setEditingIngredient(i)
@@ -49,7 +54,7 @@ export default function StockPage() {
       <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
 
       {activeTab === 'ingredients' && (
-        <IngredientList onSelect={handleEditIngredient} />
+        <IngredientList onSelect={handleEditIngredient} onDelete={(id, label) => setPendingDelete({ id, label })} />
       )}
       {activeTab === 'movements' && (
         <StockMovementLog />
@@ -67,6 +72,15 @@ export default function StockPage() {
       <DeliveryForm
         isOpen={deliveryOpen}
         onClose={() => setDeliveryOpen(false)}
+      />
+      <DeleteConfirm
+        isOpen={!!pendingDelete}
+        label={pendingDelete?.label ?? ''}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={async () => {
+          await deleteIngredient.mutateAsync(pendingDelete!.id)
+          toast.success('Ingredient deleted')
+        }}
       />
     </div>
   )

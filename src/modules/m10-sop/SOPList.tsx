@@ -4,12 +4,14 @@ import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { SOP_CATEGORIES } from './types'
 import type { SOP } from './types'
 
 interface Props {
   onSelect: (sop: SOP) => void
+  onDelete?: (id: string, label: string) => void
 }
 
 const CAT_OPTIONS = [
@@ -19,7 +21,7 @@ const CAT_OPTIONS = [
 
 type Row = Record<string, unknown>
 
-export function SOPList({ onSelect }: Props) {
+export function SOPList({ onSelect, onDelete }: Props) {
   const { data: sops, isLoading } = useSOPs()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')
@@ -60,6 +62,9 @@ export function SOPList({ onSelect }: Props) {
               header: 'Status',
               render: (r) => <Badge variant={r.is_active ? 'green' : 'grey'}>{r.is_active ? 'Active' : 'Draft'}</Badge>,
             },
+            { key: '_del', header: '', render: (r) => onDelete ? (
+              <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); onDelete(r.id as string, r.title as string) }}>Delete</Button>
+            ) : null },
           ]}
           data={filtered as unknown as Row[]}
           onRowClick={(r) => onSelect(r as unknown as SOP)}

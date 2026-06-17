@@ -3,6 +3,7 @@ import { useMenuItems, useMenuCategories } from '@/lib/queries'
 import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
 import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { formatGBP } from '@/lib/utils'
 import type { MenuItem, MenuItemStatus } from '@/types/menu'
@@ -17,9 +18,10 @@ const STATUS_BADGE: Record<MenuItemStatus, 'green' | 'amber' | 'red'> = {
 
 interface Props {
   onSelect: (item: MenuItem) => void
+  onDelete?: (id: string, label: string) => void
 }
 
-export function MenuItemList({ onSelect }: Props) {
+export function MenuItemList({ onSelect, onDelete }: Props) {
   const { data: items, isLoading } = useMenuItems()
   const { data: categories } = useMenuCategories()
   const [search, setSearch] = useState('')
@@ -82,6 +84,9 @@ export function MenuItemList({ onSelect }: Props) {
                 {r.status as string}
               </Badge>
             )},
+            { key: '_del', header: '', render: (r) => onDelete ? (
+              <Button size="sm" variant="danger" onClick={(e) => { e.stopPropagation(); onDelete(r.id as string, r.name as string) }}>Delete</Button>
+            ) : null },
           ]}
           data={filtered as unknown as Row[]}
           onRowClick={(r) => onSelect(r as unknown as MenuItem)}

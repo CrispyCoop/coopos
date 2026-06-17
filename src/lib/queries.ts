@@ -667,3 +667,105 @@ export function useSuppliers() {
     },
   })
 }
+
+// ============================================================
+// DELETE MUTATIONS
+// ============================================================
+export function useDeleteSaleRecord() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('sales_records').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['sales-history'] }); qc.invalidateQueries({ queryKey: QUERY_KEYS.salesRecords(todayISO()) }) },
+  })
+}
+
+export function useDeleteIngredient() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('ingredients').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.ingredients }) },
+  })
+}
+
+export function useDeleteStaffMember() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('staff_members').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.staffMembers }) },
+  })
+}
+
+export function useDeleteMenuItem() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('menu_items').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.menuItems }) },
+  })
+}
+
+export function useDeleteOverheadItem() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('overhead_items').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.overheadItems }) },
+  })
+}
+
+export function useDeleteSOP() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('sops').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.sops }) },
+  })
+}
+
+export function useDeleteTransaction() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('financial_transactions').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.transactions }) },
+  })
+}
+
+export function useDeleteSupplier() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('suppliers').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.suppliers }) },
+  })
+}
+
+export function useDeleteWasteLog() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('waste_logs').delete().eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: QUERY_KEYS.wasteLogs() }) },
+  })
+}

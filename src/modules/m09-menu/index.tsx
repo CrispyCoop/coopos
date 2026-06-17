@@ -3,12 +3,15 @@ import { ModuleHeader } from '@/components/layout/ModuleHeader'
 import { Tabs } from '@/components/ui/Tabs'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { DeleteConfirm } from '@/components/ui/DeleteConfirm'
 import { MenuStats } from './MenuStats'
 import { MenuItemList } from './MenuItemList'
 import { MenuItemForm } from './MenuItemForm'
 import { MenuItemDetail } from './MenuItemDetail'
 import { CategoryManager } from './CategoryManager'
 import { AllergenPanel } from './AllergenPanel'
+import { useDeleteMenuItem } from '@/lib/queries'
+import toast from 'react-hot-toast'
 import type { MenuItem } from '@/types/menu'
 
 const TABS = [
@@ -21,6 +24,8 @@ export default function MenuPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
   const [allergenItem, setAllergenItem] = useState<MenuItem | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null)
+  const deleteMenuItem = useDeleteMenuItem()
 
   if (allergenItem) {
     return (
@@ -70,7 +75,7 @@ export default function MenuPage() {
 
       {activeTab === 'items' && (
         <Card title="Menu Items">
-          <MenuItemList onSelect={setSelectedItem} />
+          <MenuItemList onSelect={setSelectedItem} onDelete={(id, label) => setPendingDelete({ id, label })} />
         </Card>
       )}
 
@@ -81,6 +86,15 @@ export default function MenuPage() {
       )}
 
       <MenuItemForm isOpen={formOpen} onClose={() => setFormOpen(false)} existing={null} />
+      <DeleteConfirm
+        isOpen={!!pendingDelete}
+        label={pendingDelete?.label ?? ''}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={async () => {
+          await deleteMenuItem.mutateAsync(pendingDelete!.id)
+          toast.success('Menu item deleted')
+        }}
+      />
     </div>
   )
 }
