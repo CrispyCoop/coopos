@@ -85,18 +85,12 @@ export const wasteEntrySchema = z.object({
   { message: 'Select an ingredient or menu item' }
 )
 
-// SALES
+// SALES — only fields that live inside React Hook Form
+// items and total are in component state and validated manually in onSubmit
 export const saleEntrySchema = z.object({
   channel: z.enum(['instore_cash', 'instore_card', 'app', 'deliveroo', 'ubereats', 'justeat', 'foodhub', 'gogetter']),
   order_ref: z.string().optional(),
-  total: z.coerce.number().positive('Total must be positive'),
   discount: z.coerce.number().min(0).default(0),
-  items_json: z.array(z.object({
-    menu_item_id: z.string().uuid(),
-    name: z.string(),
-    quantity: z.coerce.number().positive(),
-    unit_price: z.coerce.number().min(0),
-  })).min(1, 'Add at least one item'),
 })
 
 // SUPPLIERS

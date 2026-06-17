@@ -28,7 +28,7 @@ export function SaleEntryForm({ isOpen, onClose }: Props) {
 
   const { register, handleSubmit, watch, reset, formState: { isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(saleEntrySchema) as never,
-    defaultValues: { channel: 'instore_cash', discount: 0, total: 0 },
+    defaultValues: { channel: 'instore_cash', discount: 0 },
   })
 
   const discount = Number(watch('discount') ?? 0)
